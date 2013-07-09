@@ -1,11 +1,22 @@
+function classToEndpoint(klass) {
+  return klass.toString().split('.')[1];
+}
+
 Ember.ParseAdapter = Ember.Adapter.extend({
   find: function(record, id) {
+    var endpoint = classToEndpoint(record.constructor);
 
+    return this._ajax(endpoint + "/" + id).then(function(json) {
+      record.load(id, json);
+    }, function(err) {
+      console.log("Error occurred:", err);
+    });
   },
 
   findAll: function(klass, records) {
-    var className = klass.toString().split('.')[1];
-    return this._ajax(className).then(function(json) {
+    var endpoint = classToEndpoint(klass);
+
+    return this._ajax(endpoint).then(function(json) {
       records.load(klass, json.results);
     }, function(err) {
       console.log("Error occurred:", err);
